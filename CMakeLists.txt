@@ -11,6 +11,7 @@ add_library(${PROJECT_NAME} SHARED
     # Add your cpp files here
 )
 
+set(GEODE_BINDINGS_REPO_PATH "S:/GitHub/Geode/bindings")
 if (NOT DEFINED ENV{GEODE_SDK})
     message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to Geode")
 else()

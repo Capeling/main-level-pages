@@ -1,9 +1,17 @@
 {
 	"geode": "2.0.0-beta.20",
-	"gd": "2.204",
+	"gd": {
+		"win": "2.204",
+		"android": "2.205"
+	},
 	"version": "v1.0.0",
 	"id": "capeling.main_level_pages",
 	"name": "main level pages",
 	"developer": "Capeling",
-	"description": ""
+	"description": "",
+	"resources": {
+		"sprites": [
+			"resources/*.png"
+		]
+	}
 }
