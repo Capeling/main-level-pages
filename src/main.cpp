@@ -5,9 +5,6 @@
 #include <Geode/modify/LevelAreaInnerLayer.hpp>
 #include "levelUtils.hpp"
 
-#define MEMBERBYOFFSET(type, class, offset) *reinterpret_cast<type*>(reinterpret_cast<uintptr_t>(class) + offset)
-#define MBO MEMBERBYOFFSET
-
 class $modify(GJGameLevel) {
 	int getAverageDifficulty() {
 		if(this->m_levelType == GJLevelType::Local) {
@@ -39,7 +36,7 @@ class $modify(LevelAreaInnerLayer) {
 		scene->addChild(LevelInfoLayer::create(level, false));
 
 		CCDirector::sharedDirector()->replaceScene(CCTransitionFade::create(0.5f, scene));*/ 
-		
+
 		//future update maybe
 	}
 };
@@ -121,15 +118,16 @@ class $modify(LevelInfoLayerExt, LevelInfoLayer) {
 
 				titleLabel->setString("?");
 			} else {
-				log::info("clone button setup started");
-				m_cloneBtn->setEnabled(true);
-				m_cloneBtn->setVisible(true);
-				getChildOfType<CCSprite>(m_cloneBtn, 0)->setDisplayFrame(SFC->spriteFrameByName("GJ_duplicateBtn_001.png"));
-				m_cloneBtn->m_pfnSelector = menu_selector(LevelInfoLayerExt::confirmCloneMain);
-				log::info("clone button setup finished");
+				auto cloneMenu = this->getChildByID("left-side-menu");
+				cloneMenu->getChildByID("copy-button")->removeFromParent();
+				auto cloneSpr = CCSprite::createWithSpriteFrameName("GJ_duplicateBtn_001.png");
+				auto cloneBtn = CCMenuItemSpriteExtra::create(cloneSpr, this, menu_selector(LevelInfoLayerExt::confirmCloneMain));
+				cloneBtn->setZOrder(-2);
+				cloneMenu->addChild(cloneBtn);
+				cloneMenu->updateLayout();
+				cloneBtn->setID("copy-button"); //this is weirdo way but mobile crashes if i try to access m_cloneBtn directly
 			}
 		}
-		log::info("LevelInfoLayer::init finished");
 		return true;
 	}
 

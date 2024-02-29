@@ -1,3 +1,3 @@
-# Template Mod
+# Main Level Online Page
 
-Edit about.md to change this
+Changes the level pages to jump to a modified online level page that allows you to copy the level, change settings (disabling shake, ldm) and favouriting the level.

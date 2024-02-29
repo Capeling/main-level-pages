@@ -6,9 +6,9 @@
 	},
 	"version": "v1.0.0",
 	"id": "capeling.main_level_pages",
-	"name": "main level pages",
+	"name": "Main Level Online Page",
 	"developer": "Capeling",
-	"description": "",
+	"description": "Changes the level pages to jump to a modified online level page that allows you to copy the level, change settings (disabling shake, ldm) and favouriting the level.",
 	"resources": {
 		"sprites": [
 			"resources/*.png"
