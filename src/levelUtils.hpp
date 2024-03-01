@@ -24,7 +24,8 @@ namespace LevelUtils {
 		scene->addChild(EditLevelLayer::create(level));
 		CCDirector::sharedDirector()->replaceScene(CCTransitionFade::create(0.5f, scene));
 	}
-    	void onCloneMain(GJGameLevel* level) {
+    	void onCloneMain(GJGameLevel* level, bool dontAskForConvert) {
+		if(dontAskForConvert) return cloneMain(false, level);
 		auto popup = createQuickPopup("Convert Secret Coins", 
 		"Convert <cy>Secret Coins</c> to <cl>User Coins</c>?", "NO", "YES",
 		[level](auto, bool btn2) {

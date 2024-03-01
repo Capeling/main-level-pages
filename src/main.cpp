@@ -3,6 +3,7 @@
 #include <Geode/modify/LevelPage.hpp>
 #include <Geode/modify/LevelInfoLayer.hpp>
 #include <Geode/modify/LevelAreaInnerLayer.hpp>
+#include <Geode/modify/SecretLayer2.hpp>
 #include "levelUtils.hpp"
 
 class $modify(GJGameLevel) {
@@ -15,29 +16,52 @@ class $modify(GJGameLevel) {
 		}
 		return GJGameLevel::getAverageDifficulty();
 	}
+};
 
+class $modify(SecretLayer2) {
+	void onSecretLevel(CCObject* sender) {
+		int diamonds = GameStatsManager::sharedState()->getStat("13");
+		if(diamonds < 200) return SecretLayer2::onSecretLevel(sender);
+		auto LLM = LocalLevelManager::sharedState();
+
+		auto level = GameLevelManager::sharedState()->getMainLevel(3001, false);
+		level->m_levelString = LLM->getMainLevelString(level->m_levelID.value());
+		level->m_creatorName = "RobTop";
+		level->m_coinsVerified = true;
+		level->m_accountID = 71;
+		level->m_levelLength = 1;
+		level->m_demonDifficulty = 3;
+		level->m_featured = 0;
+
+		auto scene = CCScene::create();
+		scene->addChild(LevelInfoLayer::create(level, false));
+
+		CCDirector::sharedDirector()->replaceScene(CCTransitionFade::create(0.5f, scene));
+	}
 };
 
 class $modify(LevelAreaInnerLayer) {
 	void onDoor(CCObject* sender) {
 		auto LLM = LocalLevelManager::sharedState();
 
-		LevelAreaInnerLayer::onDoor(sender);
-		/*auto level = GameLevelManager::sharedState()->getMainLevel();
+		//return LevelAreaInnerLayer::onDoor(sender);
+		auto level = GameLevelManager::sharedState()->getMainLevel(sender->getTag(), true);
 		level->m_levelString = LLM->getMainLevelString(level->m_levelID.value());
 		level->m_creatorName = "RobTop";
 		level->m_coinsVerified = true;
 		level->m_accountID = 71;
-		level->m_levelLength = 3;
+		level->m_levelLength = 5;
 		level->m_demonDifficulty = 3;
 		level->m_featured = 1;
 
 		auto scene = CCScene::create();
 		scene->addChild(LevelInfoLayer::create(level, false));
 
-		CCDirector::sharedDirector()->replaceScene(CCTransitionFade::create(0.5f, scene));*/ 
-
-		//future update maybe
+		CCDirector::sharedDirector()->replaceScene(CCTransitionFade::create(0.5f, scene));
+	}
+	bool init(bool idk) {
+		log::info("level area inner init bool: {}", idk);
+		return LevelAreaInnerLayer::init(idk);
 	}
 };
 
@@ -64,6 +88,7 @@ class $modify(LevelPage) {
 class $modify(LevelInfoLayerExt, LevelInfoLayer) {
 
 	bool m_isMain = false;
+	bool m_isSecret = false;
 
 	bool init(GJGameLevel* level, bool isGauntlet) {
 
@@ -71,6 +96,7 @@ class $modify(LevelInfoLayerExt, LevelInfoLayer) {
 			return false;
 		
 		m_fields->m_isMain = level->m_levelType == GJLevelType::Local;
+		m_fields->m_isSecret = m_fields->m_isMain && level->m_levelID.value() == 3001;
 		log::info("is main");
 		auto SFC = CCSpriteFrameCache::sharedSpriteFrameCache();
 		auto GSM = GameStatsManager::sharedState();
@@ -118,27 +144,37 @@ class $modify(LevelInfoLayerExt, LevelInfoLayer) {
 
 				titleLabel->setString("?");
 			} else {
-				auto cloneMenu = this->getChildByID("left-side-menu");
-				cloneMenu->getChildByID("copy-button")->removeFromParent();
-				auto cloneSpr = CCSprite::createWithSpriteFrameName("GJ_duplicateBtn_001.png");
-				auto cloneBtn = CCMenuItemSpriteExtra::create(cloneSpr, this, menu_selector(LevelInfoLayerExt::confirmCloneMain));
-				cloneBtn->setZOrder(-2);
-				cloneMenu->addChild(cloneBtn);
-				cloneMenu->updateLayout();
-				cloneBtn->setID("copy-button"); //this is weirdo way but mobile crashes if i try to access m_cloneBtn directly
+				CCMenuItemSpriteExtra* cloneBtn = (CCMenuItemSpriteExtra*)this->getChildByID("left-side-menu")->getChildByID("copy-button");
+				cloneBtn->setEnabled(true);
+				cloneBtn->setVisible(true);
+				getChildOfType<CCSprite>(cloneBtn, 0)->setDisplayFrame(SFC->spriteFrameByName("GJ_duplicateBtn_001.png"));
+				cloneBtn->m_pfnSelector = menu_selector(LevelInfoLayerExt::confirmCloneMain);
 			}
 		}
 		return true;
 	}
 
 	void onBack(CCObject* sender) {
-		if(m_fields->m_isMain) {
+		if(m_fields->m_isMain && !this->m_level->isPlatformer() && !m_fields->m_isSecret) {
 			auto scene = CCScene::create();
 			scene->addChild(LevelSelectLayer::create(m_level->m_levelID.value() - 1));
 			CCDirector::sharedDirector()->replaceScene(CCTransitionFade::create(0.5f, scene));
 			return;
+		} else if(m_fields->m_isMain && this->m_level->isPlatformer()) {
+			auto scene = CCScene::create();
+			scene->addChild(LevelAreaInnerLayer::create(true));
+			CCDirector::sharedDirector()->replaceScene(CCTransitionFade::create(0.5f, scene));
+		} else if(m_fields->m_isMain && m_fields->m_isSecret) {
+			auto scene = CCScene::create();
+			scene->addChild(SecretLayer2::create());
+			CCDirector::sharedDirector()->replaceScene(CCTransitionFade::create(0.5f, scene));
 		}
 		LevelInfoLayer::onBack(sender);
+	}
+	void confirmClone(CCObject* sender) {
+		if(this->m_fields->m_isMain)
+			return LevelInfoLayerExt::confirmCloneMain(sender);
+		return LevelInfoLayer::confirmClone(sender);
 	}
 	void onPlay(CCObject* sender) {
 		int secretCoins = GameStatsManager::sharedState()->getStat("8");
@@ -154,7 +190,7 @@ class $modify(LevelInfoLayerExt, LevelInfoLayer) {
 		"Create a <cl>copy</c> of this <cg>main</c> level?", "NO", "YES",
 		[this](auto, bool btn2) {
 			if(btn2) {
-				LevelUtils::onCloneMain(this->m_level);
+				LevelUtils::onCloneMain(this->m_level, this->m_fields->m_isSecret);
 				return;
 			}
 		}, true, true);

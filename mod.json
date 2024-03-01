@@ -4,7 +4,7 @@
 		"win": "2.204",
 		"android": "2.205"
 	},
-	"version": "v1.0.0",
+	"version": "v1.1.0",
 	"id": "capeling.main_level_pages",
 	"name": "Main Level Pages",
 	"developer": "Capeling",
@@ -17,7 +17,7 @@
 	"dependencies": [
         {
             "id": "geode.node-ids",
-            "version": "v1.6.0",
+            "version": "v1.6.1",
             "importance": "required"
         }
     ]
