@@ -95,9 +95,12 @@ class $modify(LevelInfoLayerExt, LevelInfoLayer) {
 		if(!LevelInfoLayer::init(level, isGauntlet))
 			return false;
 		
-		m_fields->m_isMain = level->m_levelType == GJLevelType::Local;
+		//m_fields->m_isMain = level->m_levelType == GJLevelType::Local;
 		m_fields->m_isSecret = m_fields->m_isMain && level->m_levelID.value() == 3001;
-		log::info("is main");
+		if(!m_fields->m_isMain) {
+			m_fields->m_isMain = level->m_levelID.value() < 23 || level->m_levelID.value() > 5000 && level->m_levelID.value() < 5005 || level->m_levelID.value() == 3001;
+		}
+		if(m_fields->m_isMain) level->m_levelType = GJLevelType::Local; //fix for that one person who had a mod fuck up their game
 		auto SFC = CCSpriteFrameCache::sharedSpriteFrameCache();
 		auto GSM = GameStatsManager::sharedState();
 		if(m_fields->m_isMain) {
@@ -111,7 +114,6 @@ class $modify(LevelInfoLayerExt, LevelInfoLayer) {
 			m_lengthLabel->setPosition(m_likesLabel->getPosition());
 			this->getChildByID("length-icon")->setPosition(m_likesIcon->getPosition());
 			for(int i = 0; i < m_coins->count(); i++) {
-				log::info("starting coins");
 				auto node = static_cast<CCSprite*>(m_coins->objectAtIndex(i));
 				node->setDisplayFrame(CCSprite::create("goldcoin_small01_001.png"_spr)->displayFrame());
 				if(GSM->hasSecretCoin(fmt::format("{}_{}", level->m_levelID.value(), i + 1).c_str()))
@@ -127,9 +129,7 @@ class $modify(LevelInfoLayerExt, LevelInfoLayer) {
 				if(node->getID() != "info-button" && node->getID() != "favorite-button")
 					node->setVisible(false);
 			}
-			log::info("finished ui");
-		
-			//auto playBtn = getChildOfType<CCMenuItemSpriteExtra>(m_playBtnMenu, 0);
+			
 			CCLabelBMFont* titleLabel = (CCLabelBMFont*)this->getChildByID("title-label");
 
 			int secretCoins = GameStatsManager::sharedState()->getStat("8");
