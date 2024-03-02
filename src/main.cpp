@@ -66,10 +66,12 @@ class $modify(LevelAreaInnerLayer) {
 };
 
 class $modify(LevelPage) {
-	void onPlay(CCObject*) {
+	void onPlay(CCObject* sender) {
 		auto LLM = LocalLevelManager::sharedState();
 
 		auto level = this->m_level;
+		if(level->m_levelID < 0)
+			return LevelPage::onPlay(sender);
 		level->m_levelString = LLM->getMainLevelString(level->m_levelID.value());
 		level->m_creatorName = "RobTop";
 		level->m_coinsVerified = true;
