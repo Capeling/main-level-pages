@@ -26,9 +26,13 @@ class $modify(SecretLayer2) {
 
 		auto level = GameLevelManager::sharedState()->getMainLevel(3001, false);
 		level->m_levelString = LLM->getMainLevelString(level->m_levelID.value());
-		level->m_creatorName = "RobTop";
+		if(level->m_creatorName == "") {
+			level->m_creatorName = "RobTop";
+		}
+		if(level->m_accountID == 0) {
+			level->m_accountID = 71;
+		}
 		level->m_coinsVerified = true;
-		level->m_accountID = 71;
 		level->m_levelLength = 1;
 		level->m_demonDifficulty = 3;
 		level->m_featured = 0;
@@ -47,9 +51,13 @@ class $modify(LevelAreaInnerLayer) {
 		//return LevelAreaInnerLayer::onDoor(sender);
 		auto level = GameLevelManager::sharedState()->getMainLevel(sender->getTag(), true);
 		level->m_levelString = LLM->getMainLevelString(level->m_levelID.value());
-		level->m_creatorName = "RobTop";
+		if(level->m_creatorName == "") {
+			level->m_creatorName = "RobTop";
+		}
+		if(level->m_accountID == 0) {
+			level->m_accountID = 71;
+		}
 		level->m_coinsVerified = true;
-		level->m_accountID = 71;
 		level->m_levelLength = 5;
 		level->m_demonDifficulty = 3;
 		level->m_featured = 1;
@@ -73,9 +81,13 @@ class $modify(LevelPage) {
 		if(level->m_levelID < 0)
 			return LevelPage::onPlay(sender);
 		level->m_levelString = LLM->getMainLevelString(level->m_levelID.value());
-		level->m_creatorName = "RobTop";
+		if(level->m_creatorName == "") {
+			level->m_creatorName = "RobTop";
+		}
+		if(level->m_accountID == 0) {
+			level->m_accountID = 71;
+		}
 		level->m_coinsVerified = true;
-		level->m_accountID = 71;
 		level->m_levelLength = 3;
 		level->m_demonDifficulty = 3;
 		level->m_featured = 1;
